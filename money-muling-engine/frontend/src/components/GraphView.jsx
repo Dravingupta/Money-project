@@ -20,7 +20,7 @@ const formatDateTime = (isoStr) => {
     } catch { return null; }
 };
 
-const MAX_GRAPH_ACCOUNTS = 400;
+const MAX_GRAPH_RINGS = 20;
 
 const GraphView = ({ data }) => {
     const containerRef = useRef(null);
@@ -29,8 +29,8 @@ const GraphView = ({ data }) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
     const wrapperRef = useRef(null);
 
-    const totalAccounts = data?.summary?.total_accounts_analyzed || 0;
-    const isTooLarge = totalAccounts > MAX_GRAPH_ACCOUNTS;
+    const totalRings = data?.fraud_rings?.length || 0;
+    const isTooLarge = totalRings > MAX_GRAPH_RINGS;
 
     useEffect(() => {
         if (!data || !containerRef.current || isTooLarge) return;
@@ -330,7 +330,7 @@ const GraphView = ({ data }) => {
                         Dataset Too Large for Graph Rendering
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', maxWidth: 420 }}>
-                        This dataset has <span style={{ color: 'var(--accent-gold)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{totalAccounts.toLocaleString()}</span> accounts — graph visualization is capped at {MAX_GRAPH_ACCOUNTS} accounts to maintain performance. View the <strong>Suspicious Accounts</strong> and <strong>Fraud Rings</strong> tabs for full results.
+                        This dataset has <span style={{ color: 'var(--accent-gold)', fontWeight: 600, fontFamily: 'var(--font-mono)' }}>{totalRings}</span> detected rings — graph visualization is capped at {MAX_GRAPH_RINGS} rings to maintain performance. View the <strong>Suspicious Accounts</strong> and <strong>Fraud Rings</strong> tabs for full results.
                     </div>
                 </div>
             ) : (
