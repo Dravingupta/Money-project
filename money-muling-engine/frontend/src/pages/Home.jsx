@@ -66,18 +66,7 @@ const Home = () => {
                 style={{ marginBottom: 'var(--section-gap)' }}
             >
                 <div style={{ maxWidth: 640 }}>
-                    <div style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 8,
-                        padding: '6px 14px', borderRadius: 'var(--radius-full)',
-                        background: 'rgba(212, 168, 83, 0.06)',
-                        border: '1px solid rgba(212, 168, 83, 0.15)',
-                        marginBottom: 16, fontSize: '0.75rem', fontWeight: 600,
-                        color: 'var(--accent-gold)',
-                        textTransform: 'uppercase', letterSpacing: '0.06em',
-                    }}>
-                        <Activity size={14} />
-                        Financial Forensics Engine
-                    </div>
+
                     <h1 style={{
                         fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
                         fontWeight: 800, lineHeight: 1.15,

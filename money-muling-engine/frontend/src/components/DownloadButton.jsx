@@ -5,7 +5,12 @@ const DownloadButton = ({ data }) => {
     if (!data) return null;
 
     const handleDownload = () => {
-        const jsonString = JSON.stringify(data, null, 2);
+        // Strip extra fields (first_seen, last_seen) to match exact spec format
+        const cleanData = {
+            ...data,
+            suspicious_accounts: data.suspicious_accounts.map(({ first_seen, last_seen, ...rest }) => rest),
+        };
+        const jsonString = JSON.stringify(cleanData, null, 2);
         const blob = new Blob([jsonString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 
