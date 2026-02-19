@@ -39,7 +39,8 @@ export const uploadFile = async (req, res, next) => {
             smurfResults,
             shellResults,
             totalAccounts: graphData.totalAccounts,
-            processingTimeSeconds
+            processingTimeSeconds,
+            accountStats: graphData.accountStats
         });
 
         res.status(200).json(finalOutput);

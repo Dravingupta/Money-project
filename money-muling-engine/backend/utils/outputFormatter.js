@@ -13,7 +13,8 @@ export const generateFinalOutput = ({
     smurfResults,
     shellResults,
     totalAccounts,
-    processingTimeSeconds
+    processingTimeSeconds,
+    accountStats = {}
 }) => {
     // 1. Index suspicious accounts by ID for easy lookup
     const accountMap = new Map();
@@ -108,11 +109,18 @@ export const generateFinalOutput = ({
             }
         });
 
+        // Include timestamps from accountStats if available
+        const stats = accountStats[acc.account_id];
+        const firstSeen = stats?.firstTransaction ? new Date(stats.firstTransaction).toISOString() : null;
+        const lastSeen = stats?.lastTransaction ? new Date(stats.lastTransaction).toISOString() : null;
+
         return {
             account_id: acc.account_id,
             suspicion_score: parseFloat(acc.suspicion_score.toFixed ? acc.suspicion_score.toFixed(1) : acc.suspicion_score),
             detected_patterns: acc.detected_patterns,
-            ring_id: primaryRingId
+            ring_id: primaryRingId,
+            first_seen: firstSeen,
+            last_seen: lastSeen
         };
     });
 
