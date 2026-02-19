@@ -1,4 +1,5 @@
 import React from 'react';
+import { Download, FileJson } from 'lucide-react';
 
 const DownloadButton = ({ data }) => {
     if (!data) return null;
@@ -18,22 +19,39 @@ const DownloadButton = ({ data }) => {
     };
 
     return (
-        <div style={{ marginTop: '20px', textAlign: 'center' }}>
-            <button
-                onClick={handleDownload}
-                style={{
-                    padding: '10px 20px',
-                    backgroundColor: '#28a745',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '5px',
-                    cursor: 'pointer',
-                    fontSize: '16px'
-                }}
-            >
-                Download JSON Report
-            </button>
-        </div>
+        <button
+            id="download-json-btn"
+            onClick={handleDownload}
+            style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 10,
+                padding: '12px 28px',
+                borderRadius: 'var(--radius-full)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                background: 'rgba(16, 185, 129, 0.06)',
+                color: '#6ee7b7',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                fontFamily: 'var(--font-primary)',
+                cursor: 'pointer',
+                transition: 'all var(--transition-base)',
+            }}
+            onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.12)';
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.12)';
+            }}
+            onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(16, 185, 129, 0.06)';
+                e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+                e.currentTarget.style.boxShadow = 'none';
+            }}
+        >
+            <FileJson size={18} />
+            Download JSON Report
+            <Download size={16} />
+        </button>
     );
 };
 
