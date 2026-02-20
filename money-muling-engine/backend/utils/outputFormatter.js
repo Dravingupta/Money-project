@@ -45,7 +45,8 @@ export const generateFinalOutput = ({
                 ring_id: ring.ring_id,
                 member_accounts: [...ring.member_accounts].sort(),
                 pattern_type: ring.pattern_type || type,
-                risk_score: parseFloat(avgScore.toFixed(1))
+                risk_score: parseFloat(avgScore.toFixed(1)),
+                ...(ring.main_account && { main_account: ring.main_account })
             });
         });
     };

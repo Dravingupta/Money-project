@@ -95,21 +95,64 @@ const GraphView = ({ data }) => {
                 }
             });
 
-            // Create edges
+            // Create edges — different topology per pattern type
             const members = ring.member_accounts;
-            if (members.length > 1) {
-                for (let i = 0; i < members.length; i++) {
-                    const source = members[i];
-                    const target = members[(i + 1) % members.length];
-                    elements.push({
-                        data: {
-                            id: `${ring.ring_id}_${source}_${target}`,
-                            source,
-                            target,
-                            edgeColor: ringColors[ring.ring_id],
-                            ringType: ring.pattern_type,
-                        }
-                    });
+            const hub = ring.main_account;
+
+            if (ring.pattern_type === 'smurfing_fan_out' && hub) {
+                // Hub sends to all other members (star/spoke pattern)
+                members.forEach(m => {
+                    if (m !== hub) {
+                        elements.push({
+                            data: {
+                                id: `${ring.ring_id}_${hub}_${m}`,
+                                source: hub,
+                                target: m,
+                                edgeColor: ringColors[ring.ring_id],
+                                ringType: ring.pattern_type,
+                            }
+                        });
+                    }
+                });
+                // Mark hub node
+                const hubEl = elements.find(e => e.data.id === hub);
+                if (hubEl) hubEl.data.isHub = true;
+
+            } else if (ring.pattern_type === 'smurfing_fan_in' && hub) {
+                // All other members send to hub (star/spoke pattern)
+                members.forEach(m => {
+                    if (m !== hub) {
+                        elements.push({
+                            data: {
+                                id: `${ring.ring_id}_${m}_${hub}`,
+                                source: m,
+                                target: hub,
+                                edgeColor: ringColors[ring.ring_id],
+                                ringType: ring.pattern_type,
+                            }
+                        });
+                    }
+                });
+                // Mark hub node
+                const hubEl = elements.find(e => e.data.id === hub);
+                if (hubEl) hubEl.data.isHub = true;
+
+            } else {
+                // Cycle / shell_network — circular chain
+                if (members.length > 1) {
+                    for (let i = 0; i < members.length; i++) {
+                        const source = members[i];
+                        const target = members[(i + 1) % members.length];
+                        elements.push({
+                            data: {
+                                id: `${ring.ring_id}_${source}_${target}`,
+                                source,
+                                target,
+                                edgeColor: ringColors[ring.ring_id],
+                                ringType: ring.pattern_type,
+                            }
+                        });
+                    }
                 }
             }
         });
@@ -148,6 +191,17 @@ const GraphView = ({ data }) => {
                         'border-width': 3,
                         'border-color': 'data(nodeColor)',
                         'font-size': '10px',
+                    }
+                },
+                {
+                    selector: 'node[?isHub]',
+                    style: {
+                        'shape': 'diamond',
+                        'width': 65,
+                        'height': 65,
+                        'border-width': 4,
+                        'border-color': 'data(nodeColor)',
+                        'font-size': '11px',
                     }
                 },
                 {
