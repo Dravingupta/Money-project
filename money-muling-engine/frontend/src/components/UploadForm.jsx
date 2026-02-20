@@ -56,7 +56,6 @@ const AnalysisLoader = ({ progress }) => {
         >
             {/* Animated ring spinner */}
             <div style={{ position: 'relative', width: 80, height: 80 }}>
-                {/* Outer ring */}
                 <svg width="80" height="80" viewBox="0 0 80 80" style={{ position: 'absolute', top: 0, left: 0 }}>
                     <circle cx="40" cy="40" r="35" fill="none" stroke="rgba(212, 168, 83, 0.08)" strokeWidth="3" />
                     <motion.circle
@@ -74,20 +73,26 @@ const AnalysisLoader = ({ progress }) => {
                         </linearGradient>
                     </defs>
                 </svg>
-                {/* Inner icon */}
-                <motion.div
-                    key={activeStep}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                <div
                     style={{
                         position: 'absolute',
-                        top: '50%', left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        color: 'var(--accent-gold)',
+                        top: 0, left: 0, width: '100%', height: '100%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}
                 >
-                    <ActiveIcon size={28} />
-                </motion.div>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key={activeStep}
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.5 }}
+                            transition={{ duration: 0.2 }}
+                            style={{ color: 'var(--accent-gold)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        >
+                            <ActiveIcon size={28} />
+                        </motion.div>
+                    </AnimatePresence>
+                </div>
             </div>
 
             {/* Status text */}
