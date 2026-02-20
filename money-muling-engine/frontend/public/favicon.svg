@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="100" fill="#6A5ACD"/> <!-- Slate Blue Background -->
+  <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-family="Arial, sans-serif" font-weight="bold" font-size="350" fill="#F5F5F5">F</text> <!-- Off-white Text -->
+</svg>
