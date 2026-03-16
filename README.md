@@ -96,4 +96,4 @@ npm run dev
 -   **Depth Limit**: Cycle/Shell detection limited to 5 hops for performance.
 
 ## 👥 Team
--   [Your Name] - Full Stack Engineer
+-   OriginX - Full Stack Engineer
