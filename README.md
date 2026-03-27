@@ -1,99 +1,77 @@
-# Graph-Based Financial Crime Detection Engine
+# FinForensics (Money Muling Detection Engine)
 
-A full-stack system for detecting money muling, smurfing, and shell networks using graph algorithms and behavioral analysis. Built for the Rift hackathon.
+An advanced, full-stack application designed to detect and visualize complex money laundering topologies—specifically focusing on *money muling* behaviors, circular fund routing, smurfing, and layered shell networks.
 
-## 🚀 Live Demo
-- **Backend**: (Deploy to Render to get URL)
-- **Frontend**: (Deploy to Vercel to get URL)
+## 🏗️ Project Architecture Overview
 
-## 📂 Repository
-[GitHub Repository Link]
+The project is built as a highly decoupled, full-stack application divided into a Node.js API backend and a React-based frontend.
 
-## 🧠 Problem Overview
-Financial criminals use complex networks to launder money, often splitting large sums into small transactions ("smurfing") or routing funds through inactive accounts ("shell networks"). Traditional rule-based systems often miss these structural patterns. This engine builds a transaction graph to detect these specific topologies and assigns a suspicion score to each account.
+1. **Backend (Node.js/Express):** Acts as the analytical engine. It exposes an upload endpoint (`/api/upload`) using `multer` that sequentially streams and parses transaction CSVs. Upon ingestion, it constructs an in-memory directed graph encompassing account relationships and passes this graph through a sequence of algorithmic "detectors" to highlight suspicious patterns.
+2. **Frontend (React/Vite):** A Single Page Application (SPA) designed as an analyst dashboard. It allows users to upload datasets, highlights engine performance metrics (processing time, accounts analyzed), and uses `cytoscape.js` to render interactive network graphs of the detected fraudulent structures.
 
-## 🏗 System Architecture
-1.  **CSV Ingestion**: rapid parsing of transaction records.
-2.  **Graph Construction**: Builds adjacency lists and account statistics (O(N)).
-3.  **Pattern Detection**:
-    -   **Cycles**: DFS to find directed loops (Length 3-5).
-    -   **Smurfing**: Sliding window analysis for Fan-In/Fan-Out patterns (10+ accounts in 72h).
-    -   **Shell Networks**: DFS to find layered chains with low-activity intermediates.
-4.  **Scoring Engine**: Hybrid scoring based on patterns and high-frequency behavior.
-5.  **Visualization**: Interactive graph view using Cytoscape.js.
-
-## 🔍 Detection Algorithms & Complexity
-
-| Algorithm | Method | Complexity |
-| :--- | :--- | :--- |
-| **Graph Build** | Hash Map Construction | O(N) |
-| **Cycle Detection** | Depth-Limited DFS (Max depth 5) | O(V + E) |
-| **Smurfing** | Sliding Window on sorted transactions | O(N log N) |
-| **Shell Networks** | Recursive DFS with activity checks | O(V) (Bounded) |
-
-*Performance*: Processed 10,000 transactions in < 2.5 seconds on standard hardware.
-
-## 📊 Suspicion Score Methodology
-Scores are normalized from 0 to 100.
-
-| Signal | Logic | Weight |
-| :--- | :--- | :--- |
-| **Cycle Participation** | Part of a money loop | +40 |
-| **Shell Network** | Part of a layered chain | +30 |
-| **Smurfing** | Hub of fan-in/fan-out activity | +25 |
-| **High Velocity** | ≥ 5 transactions in 24h | +10 |
-| **Short Lifetime** | Active for < 3 days | +5 |
-| **False Positive Mitigation** | Active > 30 days & High Volume | -20 |
-
-## 🛠 False Positive Mitigation
-- Accounts with long transaction histories (>30 days) and consistent activity are penalized less.
-- Smurfing detection strictly requires 10 distinct counterparties within a narrow 72h window, avoiding false flags for normal high-volume merchants (who usually have spread-out transactions).
-- Shell detection ignores intermediates with >3 total transactions.
-
-## 💻 Installation & Usage
-
-### Backend
-```bash
-cd backend
-npm install
-# Start server on http://localhost:3000
-npm run dev
-```
+## 💻 Tech Stack
 
 ### Frontend
-```bash
-cd frontend
-npm install
-# Start Vite server on http://localhost:5173
-npm run dev
-```
+* **React 19 & Vite:** Fast, modern UI development.
+* **Axios:** For seamless API requests.
+* **Framer Motion:** For fluid interface animations.
+* **Cytoscape.js:** For interactive, detailed network graph visualizations of fraudulent rings.
+* **Lucide React:** Iconography.
 
-### Usage
-1.  Open the frontend.
-2.  Upload `cycles.csv` (or any test file).
-3.  View the detected graph and suspicion scores.
-4.  Download the JSON report.
+### Backend
+* **Node.js & Express.js:** Scalable API and server logic.
+* **Multer:** For robust multipart form and CSV file upload handling.
+* **CSV-Parser:** For streaming transaction data into the engine.
 
-## ☁️ Deployment Guide
+## ⚙️ Core Services & Detection Engine
 
-### Backend (Render)
-1.  Create Web Service.
-2.  Repo: `.../money-muling-engine`
-3.  Root Directory: `backend`
-4.  Build Command: `npm install`
-5.  Start Command: `npm start`
-6.  Env Var: `PORT=3000`
+The application relies heavily on graph theory and algorithmic heuristics. The process starts in `graphBuilder.js`, which converts the tabular transaction data into adjacency lists and aggregates base statistics per account (in-degrees, out-degrees, transaction velocity).
 
-### Frontend (Vercel)
-1.  Import Repo.
-2.  Root Directory: `frontend`
-3.  Framework: Vite
-4.  Env Var: `VITE_API_URL` = [Your Render Backend URL]
+From there, the engine passes the graph to four specialized core services:
 
-## ⚠️ Known Limitations
--   **In-Memory Processing**: Currently loads all transactions into RAM. Optimizable for millions of rows using streams/DB.
--   **Static Rules**: Weights are heuristic-based. Future work could use ML to learn weights.
--   **Depth Limit**: Cycle/Shell detection limited to 5 hops for performance.
+### 1. `cycleDetector.js` (Circular Fund Routing)
+Detects individuals routing money in circles to obscure trails (e.g., A → B → C → A).
+* **Algorithm:** Executes a tailored Depth-First Search (DFS) to find directed cycles strictly between lengths 3 and 5.
+* **Feature:** De-duplicates rotations of the same ring and normalizes the output.
 
-## 👥 Team
--   OriginX - Full Stack Engineer
+### 2. `smurfingDetector.js` (Fan-in / Fan-out Analysis)
+Identifies "smurfing"—where large illicit transfers are broken down into many smaller ones.
+* **Algorithm:** Employs a 72-hour sliding window over transaction chronologies, flagging any instances of 10+ distinct counterparties interacting with a single hub account. Finds both "Fan-In" (many sending to one) and "Fan-Out" (one sending to many) behaviors.
+* **False Positive Filtering:** Includes intelligent variance filters. If an all-receive hub has highly varied transaction amounts averaging under $1000, it marks it as a legitimate retail merchant (preventing false flags on stores). If an all-send hub has extremely uniform outgoing amounts, it flags it as legitimate payroll.
+
+### 3. `shellDetector.js` (Layered Shell Networks)
+Spots continuous chains of dummy accounts used purely for money layering.
+* **Algorithm:** Identifies "shell candidates" (accounts with 3 or fewer lifetime transactions). It runs a directed DFS to find chains of 3+ hops (≥ 4 nodes) where *all* intermediate routing nodes are shell candidates.
+* **Feature:** Automatically prunes chains that are mere subsets of previously detected cycle rings to avoid redundant reporting.
+
+### 4. `scoringEngine.js` (Suspicion Scoring)
+Instead of a simple binary flag, the engine evaluates accounts against a weighted point system that caps at 100. Accounts crossing a score threshold (30) are officially marked as suspicious.
+* **Heavy Penalties:**
+  * Cycle involvement gives +40 pts. Nuanced behavior grants bonuses: average cycle amounts >$10k (+15 pts), tight 24-hr execution windows (+10 pts), and strict amount decay along the cycle (+10 pts).
+  * Smurfing base +25 pts (large rings of 15+ actors get a +10 pt bonus).
+  * Shell layering participation gives +15 pts.
+  * Behavioral red flags like account lifespan < 3 days (+5 pts) or extreme high-velocity bursts (+10 pts).
+* **Mitigations (Negative points):**
+  * If an account is old (> 30 days) and naturally high-volume (> 50 typical distinct transactions), the engine applies a mitigation score of -20 pts to prevent overly aggressive system flags on legitimate power users.
+
+## 🚀 Getting Started
+
+1. **Clone the repository.**
+2. **Install backend dependencies:**
+   ```bash
+   cd money-muling-engine/backend
+   npm install
+   ```
+3. **Start the backend server:**
+   ```bash
+   npm run start
+   ```
+4. **Install frontend dependencies:**
+   ```bash
+   cd money-muling-engine/frontend
+   npm install
+   ```
+5. **Start the frontend development server:**
+   ```bash
+   npm run dev
+   ```
